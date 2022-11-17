@@ -1,10 +1,10 @@
 const express = require('express');
 const app = express();
 
-//const cors = require('cors');
+const cors = require('cors');
 
 //Habilito todas las solicitudes CORS
-//app.use(cors());
+app.use(cors());
 
 
 //Configuro opciones para el middleware del módulo 'cors'. Si no cambio nada, estas son las opciones que toma por default:
@@ -30,15 +30,15 @@ app.get('/second-server', (req, res, next) => {
 })
 
 //Habilito CORS para una ruta en particular
-// app.get('/example-route', cors(),  (req, res, next) => {
-//     res.sendStatus(200)
-// })
+app.get('/example-route', cors(), (req, res, next) => {
+  res.sendStatus(200);
+});
 
 
 //Habilito CORS para una ruta en particular pasándole las opciones que definí
-// app.get('/example-route', cors(corsOptions),  (req, res, next) => {
-//     res.sendStatus(200)
-// })
+app.get('/example-route', cors(corsOptions), (req, res, next) => {
+  res.sendStatus(200);
+});
 
 
 app.listen(3004, () => {

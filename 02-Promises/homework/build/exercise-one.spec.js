@@ -11,47 +11,47 @@ var magenta = chai.spy.on(utils, 'magenta');
 
 var fs = require('fs');
 var exercise = require('./exercise-one');
-var dirpath = path.join(__dirname, 'poem-one');
-var stanzas = fs.readdirSync(dirpath)
-.filter(function (filename) {
-	return filename[0] !== '.'
-})
-.map(function (filename) {
-	return fs.readFileSync(path.join(dirpath, filename)).toString();
-});
+var dirpath = path.join(process.cwd(), 'poem-one');
+var stanzas = fs
+  .readdirSync(dirpath)
+  .filter(function (filename) {
+    return filename[0] !== '.';
+  })
+  .map(function (filename) {
+    return fs.readFileSync(path.join(dirpath, filename)).toString();
+  });
 
-function exactlyOneIsTrue (boolA, boolB) {
-	var onlyOne = true;
-	if (boolA && boolB) {
-		onlyOne = false;
-	} else if (!boolA && !boolB) {
-		onlyOne = false;
-	}
-	return onlyOne;
+function exactlyOneIsTrue(boolA, boolB) {
+  var onlyOne = true;
+  if (boolA && boolB) {
+    onlyOne = false;
+  } else if (!boolA && !boolB) {
+    onlyOne = false;
+  }
+  return onlyOne;
 }
 
-function getCall (spy, n) {
-	return spy.__spy.calls[n] || [];
+function getCall(spy, n) {
+  return spy.__spy.calls[n] || [];
 }
 
 function resetCalls(spy) {
-	spy.__spy.calls = [];
+  spy.__spy.calls = [];
 }
 
 describe('exercise one (involving poem one)', function () {
+  beforeEach(function () {
+    resetCalls(blue);
+    resetCalls(magenta);
+  });
 
-	beforeEach(function () {
-		resetCalls(blue);
-		resetCalls(magenta);
-	});
+  var blueCalls, magentaCalls;
+  beforeEach(function () {
+    blueCalls = blue.__spy.calls;
+    magentaCalls = magenta.__spy.calls;
+  });
 
-	var blueCalls, magentaCalls;
-	beforeEach(function () {
-		blueCalls = blue.__spy.calls;
-		magentaCalls = magenta.__spy.calls;
-	});
-
-	describe('problemA', function () {
+  describe('problemA', function () {
     it('logs the first stanza', function (done) {
       exercise.problemA();
       setTimeout(function () {
@@ -91,16 +91,18 @@ describe('exercise one (involving poem one)', function () {
       setTimeout(function () {
         var blueCalledWithStanza = getCall(blue, 0)[0] == stanzas[3];
         var magentaCalledWithError = getCall(magenta, 0)[0] instanceof Error;
-        var exactlyOneOccurred = exactlyOneIsTrue(blueCalledWithStanza, magentaCalledWithError);
+        var exactlyOneOccurred = exactlyOneIsTrue(
+          blueCalledWithStanza,
+          magentaCalledWithError
+        );
         expect(exactlyOneOccurred).to.equal(true);
         done();
       }, 250);
     });
   });
 
-	describe('problemE', function () {
-
-		it('logs the third THEN the fourth stanza; if an error occurs only logs the error and does not continue reading (if there is a file still left to read)', function (done) {
+  describe('problemE', function () {
+    it('logs the third THEN the fourth stanza; if an error occurs only logs the error and does not continue reading (if there is a file still left to read)', function (done) {
       exercise.problemE();
       setTimeout(function () {
         var bothSucceeded = blueCalls.length === 2;
@@ -118,32 +120,31 @@ describe('exercise one (involving poem one)', function () {
           expect(magentaCalls).to.have.length(1);
           expect(magentaCalls[0][0]).to.be.instanceof(Error);
         } else {
-          throw Error('Cannot determine how many file reads succeeded or failed');
+          throw Error(
+            'Cannot determine how many file reads succeeded or failed'
+          );
         }
         done();
       }, 500);
     });
+  });
 
-	});
+  describe('problemF', function () {
+    var originalLog = console.log;
+    beforeEach(function () {
+      console.log = function () {
+        var args = [].slice.call(arguments);
+        console.log.calls.push({
+          args: args,
+          priorNumBlueCalls: blue.__spy.calls.length,
+          priorNumMagentaCalls: magenta.__spy.calls.length,
+        });
+        return originalLog.apply(console, arguments);
+      };
+      console.log.calls = [];
+    });
 
-	describe('problemF', function () {
-
-
-		var originalLog = console.log;
-		beforeEach(function () {
-			console.log = function () {
-				var args = [].slice.call(arguments);
-				console.log.calls.push({
-					args: args,
-					priorNumBlueCalls: blue.__spy.calls.length,
-					priorNumMagentaCalls: magenta.__spy.calls.length
-				});
-				return originalLog.apply(console, arguments);
-			}
-			console.log.calls = [];
-		});
-
-		it('logs the third THEN the fourth stanza; if an error occrus only logs the error and does not continue reading (if there is a file still left to read); always finishes by logging some done message', function (done) {
+    it('logs the third THEN the fourth stanza; if an error occrus only logs the error and does not continue reading (if there is a file still left to read); always finishes by logging some done message', function (done) {
       exercise.problemF();
       setTimeout(function () {
         var loggedDoneCalls = console.log.calls.filter(function (call) {
@@ -174,16 +175,12 @@ describe('exercise one (involving poem one)', function () {
           expect(loggedDoneCall.priorNumBlueCalls).to.equal(0);
           expect(loggedDoneCall.priorNumMagentaCalls).to.equal(1);
         } else {
-          throw Error('Cannot determine how many file reads succeeded or failed');
+          throw Error(
+            'Cannot determine how many file reads succeeded or failed'
+          );
         }
         done();
       }, 500);
     });
-
-	});
+  });
 });
-
-module.exports = {
-	blue,
-	magenta
-}

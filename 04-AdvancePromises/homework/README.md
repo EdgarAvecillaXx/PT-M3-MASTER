@@ -9,7 +9,7 @@ _Una promesa representa el eventual resultado de una operación asincrónica._ -
 El punto de las promesas es darnos devuelta composición funcional y _error bubbling_ en el mundo asincrónico. - [Domenic Denicola](https://blog.domenic.me/youre-missing-the-point-of-promises/)
 
 
-Las promesas de JavaScript son herramientas versatelis para manejar resultados asincrónicos. Son portables y pueden adjuntar funciones a un valor eventual, en multiples lugares. Comparado al callejón sin salida del standard de async callbacks, nos restauran un control flow mas normal - dejandonos conectar resultados secuenciales, retornar nuevos valores, y atrapar errores donde sea mas conveniente. 
+Las promesas de JavaScript son herramientas versatiles para manejar resultados asincrónicos. Son portables y pueden adjuntar funciones a un valor eventual, en multiples lugares. Comparado al callejón sin salida del standard de async callbacks, nos restauran un control flow mas normal - dejandonos conectar resultados secuenciales, retornar nuevos valores, y atrapar errores donde sea mas conveniente. 
 
 Una forma de entender una cosa es contruirla vos mismo. En este workshop nosotros construiremos una libreria de un constructor de promesas similar al [ECMAScript `Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise), la cual llamaremos `pledge.js`
 

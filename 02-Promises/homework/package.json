@@ -3,17 +3,28 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "jest *.spec.js",
-    "grade": "jest --useStderr --json --outputFile=./result.json"
+    "test": "jest .build/exercise-two.spec.js",
+    "grade": "jest --useStderr --json --outputFile=./result.json",
+    "start": "nodemon",
+    "build": "tsc",
+    "build:prod": "rimraf ./build && tsc",
+    "start:prod": "npm run build:prod && node build/"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/bluebird": "^3.5.37",
     "async": "^3.2.3",
     "bluebird": "^3.7.2",
     "chai": "^4.3.6",
     "chai-spies": "^1.0.0",
     "chalk": "^4.1.0",
     "jest": "^27.5.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.7",
+    "rimraf": "^3.0.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
   }
 }

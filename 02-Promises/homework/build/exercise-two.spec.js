@@ -6,61 +6,60 @@ var expect = chai.expect;
 chai.use(require('chai-spies'));
 
 var utils = require('./utils');
-var customSpies = require('./exercise-one.spec.js');
-var blue = customSpies.blue;
-var magenta = customSpies.magenta;
+var blue = chai.spy.on(utils, 'blue');
+var magenta = chai.spy.on(utils, 'magenta');
 
 var fs = require('fs');
 var exercise = require('./exercise-two');
-var dirpath = path.join(__dirname, 'poem-two');
-var stanzas = fs.readdirSync(dirpath)
-.filter(function (filename) {
-	return filename[0] !== '.'
-})
-.map(function (filename) {
-	return fs.readFileSync(path.join(dirpath, filename)).toString();
-});
+var dirpath = path.join(process.cwd(), 'poem-two');
+var stanzas = fs
+  .readdirSync(dirpath)
+  .filter(function (filename) {
+    return filename[0] !== '.';
+  })
+  .map(function (filename) {
+    return fs.readFileSync(path.join(dirpath, filename)).toString();
+  });
 
 function resetCalls(spy) {
-	spy.__spy.calls = [];
+  spy.__spy.calls = [];
 }
 
 describe('exercise two (involving poem two)', function () {
+  beforeEach(function () {
+    resetCalls(blue);
+    resetCalls(magenta);
+  });
 
-	beforeEach(function () {
-		resetCalls(blue);
-		resetCalls(magenta);
-	});
+  var blueCalls, redCalls;
+  beforeEach(function () {
+    blueCalls = blue.__spy.calls;
+    redCalls = magenta.__spy.calls;
+  });
 
-	var blueCalls, redCalls;
-	beforeEach(function () {
-		blueCalls = blue.__spy.calls;
-		redCalls = magenta.__spy.calls;
-	});
+  var originalLog = console.log;
+  beforeEach(function () {
+    console.log = function () {
+      var args = [].slice.call(arguments);
+      console.log.calls.push({
+        args: args,
+        priorNumBlueCalls: blue.__spy.calls.length,
+        priorNumRedCalls: magenta.__spy.calls.length,
+      });
+      return originalLog.apply(console, arguments);
+    };
+    console.log.calls = [];
+  });
 
-	var originalLog = console.log;
-	beforeEach(function () {
-		console.log = function () {
-			var args = [].slice.call(arguments);
-			console.log.calls.push({
-				args: args,
-				priorNumBlueCalls: blue.__spy.calls.length,
-				priorNumRedCalls: magenta.__spy.calls.length
-			});
-			return originalLog.apply(console, arguments);
-		}
-		console.log.calls = [];
-	});
+  function getLoggedDoneCalls() {
+    return console.log.calls.filter(function (call) {
+      return call.args.some(function (arg) {
+        return /done/.test(arg);
+      });
+    });
+  }
 
-	function getLoggedDoneCalls () {
-		return console.log.calls.filter(function (call) {
-			return call.args.some(function (arg) {
-				return /done/.test(arg);
-			});
-		});
-	}
-
-	describe('problemA', function () {
+  describe('problemA', function () {
     it('ignoring errors, logs the first and second stanza in any order, and a done message when both are complete', function (done) {
       exercise.problemA();
       setTimeout(function () {
@@ -77,7 +76,6 @@ describe('exercise two (involving poem two)', function () {
 
   describe('problemB', function () {
     it('ignoring errors, logs all stanzas in any order, and a done message when all are complete', function (done) {
-      this.timeout(3000);
       exercise.problemB();
       setTimeout(function () {
         stanzas.forEach(function (stanza) {
@@ -94,7 +92,6 @@ describe('exercise two (involving poem two)', function () {
 
   describe('problemC', function () {
     it('ignoring errors, logs all stanzas in the correct order, and a done message when all are complete', function (done) {
-      this.timeout(3000);
       exercise.problemC();
       setTimeout(function () {
         stanzas.forEach(function (stanza, index) {
@@ -110,10 +107,8 @@ describe('exercise two (involving poem two)', function () {
     });
   });
 
-	describe('problemD', function () {
-
-		it('logs all stanzas in the correct order; if an error occurs does not read the next file and instead logs the error; always logs done at the end', function (done) {
-      this.timeout(3000);
+  describe('problemD', function () {
+    it('logs all stanzas in the correct order; if an error occurs does not read the next file and instead logs the error; always logs done at the end', function (done) {
       exercise.problemD();
       setTimeout(function () {
         blueCalls.forEach(function (callArgs, index) {
@@ -134,7 +129,5 @@ describe('exercise two (involving poem two)', function () {
         done();
       }, 2000);
     });
-
-	});
-
+  });
 });

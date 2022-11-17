@@ -40,24 +40,23 @@ Chapter 1: Estructura básica y Cambios de Estado
 // funciones como "clases". A pesar que JS no es un lenguaje basado en clases,
 // todavía tendemos hablar en terminos de constructores e instancias
 
-describe('La clase `$Promise`', function(){
-
-  xit('es una función', function(){
-    expect( typeof $Promise ).toBe( 'function' );
+describe('La clase `$Promise`', function () {
+  it('es una función', function () {
+    expect(typeof $Promise).toBe('function');
   });
 
   // El único argumento de un contructor de una promesa es una función llamada
   // el "executor". Vamos a volver a esta función mas adelante.
 
-  xit('puede ser llamado con una argumento de función (el "executor"), devolviendo una nueva instancia de promesa', function(){
+  it('puede ser llamado con una argumento de función (el "executor"), devolviendo una nueva instancia de promesa', function () {
     var executor = function () {};
     var promise = new $Promise(executor);
-    expect( promise instanceof $Promise ).toBe( true );
+    expect(promise instanceof $Promise).toBe(true);
   });
 
   // El chequeo de tipo imita el rigor de promesas reales de ES6
 
-  xit('arroja un error descriptivo si es llamado sin función como argumento', function(){
+  it('arroja un error descriptivo si es llamado sin función como argumento', function () {
     var nonFunctions = [null, 'bonjour', undefined, 452, {}, false];
     nonFunctions.forEach(function (nonFunction) {
       expect(callingNewPromiseWith(nonFunction)).toThrowError(
@@ -65,19 +64,17 @@ describe('La clase `$Promise`', function(){
         /executor.+function/i // cualquier mensaje de error conteniendo "executor y luego "function"
       );
     });
-    function callingNewPromiseWith (argument) {
-      return function mightThrowError () {
+    function callingNewPromiseWith(argument) {
+      return function mightThrowError() {
         var promise = new $Promise(argument); // eslint-disable-line no-unused-vars
       };
     }
   });
-
 });
 
-describe('Una instancia de promesa', function() {
-
+describe('Una instancia de promesa', function () {
   var promise;
-  beforeEach(function(){
+  beforeEach(function () {
     var executor = function () {};
     promise = new $Promise(executor);
   });
@@ -85,35 +82,32 @@ describe('Una instancia de promesa', function() {
   // Las promesas internamente tienen un estado (cambiando informacion), que a
   // su vez afecta como se comporta. Promises son como una maquina de estado.
 
-
   // JavaScript carece algunos controles de privacidad comparado a otros
   // lenguajes. Una convención común es usar un esquema de nombres para
   // marcar un método como "privado". Comenzando métodos con un `._underscore`
   // es una señal de esto.
 
-  xit('comienza con un estado interno "pending"', function(){
-    expect( promise._state ).toBe( 'pending' );
+  it('comienza con un estado interno "pending"', function () {
+    expect(promise._state).toBe('pending');
   });
 
   // Nota - las promesas no estan supuestas a tener un método resolver
   // y rejector público. Sin embargo, esconder estas implementaciones puede
   // ser complicado.
 
-  xit('tiene un método de instancia `._internalResolve` ', function () {
-    expect( typeof promise._internalResolve ).toBe( 'function' );
+  it('tiene un método de instancia `._internalResolve` ', function () {
+    expect(typeof promise._internalResolve).toBe('function');
   });
 
-  xit('tiene un método de instancia `._internalReject`', function () {
-    expect( typeof promise._internalReject ).toBe( 'function' );
-    expect( promise._internalReject ).not.toBe( promise._internalResolve );
+  it('tiene un método de instancia `._internalReject`', function () {
+    expect(typeof promise._internalReject).toBe('function');
+    expect(promise._internalReject).not.toBe(promise._internalResolve);
   });
 
   // Tenemos una base configurada, ahora trabajemos en el comportamiento
 
-  describe('resolviendo ', function(){
-
-    xit('cambia el estado de la promesa a "fulfilled"', function(){
-
+  describe('resolviendo ', function () {
+    it('cambia el estado de la promesa a "fulfilled"', function () {
       // ¿Por qué no "resolved"? Esto va a ser visto en detalle en el Ch. 5,
       // pero por ahora sabe que la terminología de P/A+ estricto dibuja una
       // distinción entre "resolution" y "fullfillment". Normalmente una
@@ -122,89 +116,84 @@ describe('Una instancia de promesa', function() {
       // tenes que saber por qué aún.
 
       promise._internalResolve();
-      expect( promise._state ).toBe( 'fulfilled' );
+      expect(promise._state).toBe('fulfilled');
     });
 
-    xit('puede enviar data a la promesa para almacenamiento', function(){
+    it('puede enviar data a la promesa para almacenamiento', function () {
       var someData = { name: 'Harry Potter' };
-      promise._internalResolve( someData );
-      expect( promise._value ).toBe( someData );
+      promise._internalResolve(someData);
+      expect(promise._value).toBe(someData);
     });
 
     // Pista: usa el estado pending.
 
-    xit('no afecta una promesa ya completada', function(){
+    it('no afecta una promesa ya completada', function () {
       var data1 = { name: 'Harry Potter' };
       var data2 = { name: 'Gandalf' };
-      promise._internalResolve( data1 );
-      promise._internalResolve( data2 );
-      expect( promise._value ).toBe( data1 );
+      promise._internalResolve(data1);
+      promise._internalResolve(data2);
+      expect(promise._value).toBe(data1);
     });
 
-    xit('funciona hasta con valores falsos', function(){
+    it('funciona hasta con valores falsos', function () {
       var data1; // undefined; podría funcionar también con null, 0, false, etc.
       var data2 = 'oops!';
-      promise._internalResolve( data1 );
-      promise._internalResolve( data2 );
-      expect( promise._value ).toBe( data1 );
+      promise._internalResolve(data1);
+      promise._internalResolve(data2);
+      expect(promise._value).toBe(data1);
     });
   });
 
-  describe('rechazando ', function(){
-
+  describe('rechazando ', function () {
     // Rejection y fulfillment son virtualmente idénticas. esto no deberia
     // requerir mucho mas código
 
-    xit('cambia el estado de la promesa a "rejected"', function(){
+    it('cambia el estado de la promesa a "rejected"', function () {
       promise._internalReject();
-      expect( promise._state ).toBe( 'rejected' );
+      expect(promise._state).toBe('rejected');
     });
 
-    xit('puede enviar una razón a la promesa para almacenamiento', function(){
+    it('puede enviar una razón a la promesa para almacenamiento', function () {
       var myReason = { error: 'bad request' };
-      promise._internalReject( myReason );
-      expect( promise._value ).toBe( myReason );
+      promise._internalReject(myReason);
+      expect(promise._value).toBe(myReason);
     });
 
-    xit('no afecta un promesa ya rechazada', function(){
+    it('no afecta un promesa ya rechazada', function () {
       var reason1 = { error: 'bad request' };
       var reason2 = { error: 'timed out' };
-      promise._internalReject( reason1 );
-      promise._internalReject( reason2 );
-      expect( promise._value ).toBe( reason1 );
+      promise._internalReject(reason1);
+      promise._internalReject(reason2);
+      expect(promise._value).toBe(reason1);
     });
 
-    xit('funciona hasta con valores falsos', function(){
+    it('funciona hasta con valores falsos', function () {
       var reason1;
       var reason2 = 'oops!';
-      promise._internalReject( reason1 );
-      promise._internalReject( reason2 );
-      expect( promise._value ).toBe( reason1 );
+      promise._internalReject(reason1);
+      promise._internalReject(reason2);
+      expect(promise._value).toBe(reason1);
     });
-
   });
 
-  describe('una promesa colocada nunca cambia el estado', function(){
-
+  describe('una promesa colocada nunca cambia el estado', function () {
     // Si usaste el estado pending para los specs "no afecta un promesa ya
     // completada /rechazada", estos dos specs deberían ya estar pasando.
 
-    xit('`reject` no sobreescribe fullfilled', function(){
-      promise._internalResolve( 'Dumbledore' );
-      promise._internalReject( 404 );
-      expect( promise._state ).toBe( 'fulfilled' );
-      expect( promise._value ).toBe( 'Dumbledore' );
+    it('`reject` no sobreescribe fullfilled', function () {
+      promise._internalResolve('Dumbledore');
+      promise._internalReject(404);
+      expect(promise._state).toBe('fulfilled');
+      expect(promise._value).toBe('Dumbledore');
     });
 
-    xit('`resolve` no sobreescribe rejected', function(){
-      promise._internalReject( 404 );
-      promise._internalResolve( 'Dumbledore' );
-      expect( promise._state ).toBe( 'rejected' );
-      expect( promise._value ).toBe( 404 );
+    it('`resolve` no sobreescribe rejected', function () {
+      promise._internalReject(404);
+      promise._internalResolve('Dumbledore');
+      expect(promise._state).toBe('rejected');
+      expect(promise._value).toBe(404);
     });
-
   });
-
 });
 
 // El constructor Promise toma un argumento (de hecho, ES6 Promise *tienen*
@@ -223,20 +212,19 @@ describe('Una instancia de promesa', function() {
 // construida, el acceso al resolver y rejector es naturalmente limitado,
 // haciendo la promesa más confiable.
 
-describe('La función executor', function(){
-
+describe('La función executor', function () {
   var executor;
-  beforeEach(function(){
+  beforeEach(function () {
     executor = jasmine.createSpy();
   });
 
-  xit('es llamada cuando hacemos una nueva $Promise', function(){
-    expect( executor ).not.toHaveBeenCalled();
+  it('es llamada cuando hacemos una nueva $Promise', function () {
+    expect(executor).not.toHaveBeenCalled();
     var promise = new $Promise(executor); // eslint-disable-line no-unused-vars
-    expect( executor ).toHaveBeenCalled();
+    expect(executor).toHaveBeenCalled();
   });
 
-  xit('es llamado con dos funciones distintas (funception!), resolve y reject', function(){
+  it('es llamado con dos funciones distintas (funception!), resolve y reject', function () {
     var promise = new $Promise(executor); // eslint-disable-line no-unused-vars
     var argsPassedIntoExecutor = executor.calls.argsFor(0);
 
@@ -244,22 +232,21 @@ describe('La función executor', function(){
     var resolve = argsPassedIntoExecutor[0];
     var reject = argsPassedIntoExecutor[1];
 
-    expect( typeof resolve ).toBe( 'function' );
-    expect( typeof reject ).toBe( 'function' );
-    expect( resolve ).not.toBe( reject );
+    expect(typeof resolve).toBe('function');
+    expect(typeof reject).toBe('function');
+    expect(resolve).not.toBe(reject);
   });
 
-  describe('argumento resolve', function(){
-
+  describe('argumento resolve', function () {
     // Para este punto puedes intentar una aproximación, solo para ser bloqueado
     // por errores como "cannot read X of undefined". Piensa cuidadosamente;
     // puedes tener un problema con el *contexto* (el keyword `this`)
-    xit('resuelve la promesa', function(){
+    it('resuelve la promesa', function () {
       var promise = new $Promise(function (resolve) {
         resolve('WinGARdium leviOHsa.');
       });
-      expect( promise._state ).toBe( 'fulfilled' );
-      expect( promise._value ).toBe( 'WinGARdium leviOHsa.' );
+      expect(promise._state).toBe('fulfilled');
+      expect(promise._value).toBe('WinGARdium leviOHsa.');
     });
 
     // No hagas trampa! La función resolver y rejector provistar al executor
@@ -267,7 +254,7 @@ describe('La función executor', function(){
     // de todo, trabajaste muy duro para asegurarte `._internalResolve` y
     // `._internalReject` funcionan apropiadamente.
 
-    xit('es indistinguible en comportamiento a `._internalResolve`', function () {
+    it('es indistinguible en comportamiento a `._internalResolve`', function () {
       var resolver;
       var promise = new $Promise(function (resolve) {
         resolve('Use the promise machinery, Luke.');
@@ -278,25 +265,23 @@ describe('La función executor', function(){
       promise._internalReject("No, that's impossible!");
       promise._internalResolve('Search your feelings, Luke.');
       // No, `resolve` es o usa `._internalResolve`.
-      expect( promise._state ).toBe( 'fulfilled' );
-      expect( promise._value ).toBe( 'Use the promise machinery, Luke.' );
+      expect(promise._state).toBe('fulfilled');
+      expect(promise._value).toBe('Use the promise machinery, Luke.');
     });
-
   });
 
   describe('argumento reject', function () {
-
     // De nuevo, la resolución y el rechazo son basicamente lo mismo.
 
-    xit('rechaza la promesa', function(){
+    it('rechaza la promesa', function () {
       var promise = new $Promise(function (resolve, reject) {
         reject('Stupefy!');
       });
-      expect( promise._state ).toBe( 'rejected' );
-      expect( promise._value ).toBe( 'Stupefy!' );
+      expect(promise._state).toBe('rejected');
+      expect(promise._value).toBe('Stupefy!');
     });
 
-    xit('es indistinguible en comportamiento a `._internalReject`', function () {
+    it('es indistinguible en comportamiento a `._internalReject`', function () {
       var rejector;
       var promise = new $Promise(function (resolve, reject) {
         reject('You must unlearn what you have learned.');
@@ -307,33 +292,30 @@ describe('La función executor', function(){
       promise._internalReject("I don't believe it!");
       promise._internalResolve('That is why you fail.');
       // No, `reject` es o usa `._internalReject`.
-      expect( promise._state ).toBe( 'rejected' );
-      expect( promise._value ).toBe( 'You must unlearn what you have learned.' );
+      expect(promise._state).toBe('rejected');
+      expect(promise._value).toBe('You must unlearn what you have learned.');
     });
-
   });
 
   // Esta parte debería pasar si hiciste lo de arriba correctamente.
   // Seguí la lógica:
 
-  xit('por lo tanto permite al *creator* de una nueva promesa controlar su destino, incluso asincrónicamente!', function (done) {
-
+  it('por lo tanto permite al *creator* de una nueva promesa controlar su destino, incluso asincrónicamente!', function (done) {
     var promise3 = new $Promise(function (resolve) {
-      setTimeout(function runsInTheFuture () {
+      setTimeout(function runsInTheFuture() {
         resolve('Wow, the future is so cool.');
       }, 50);
     });
 
-    expect( promise3._state ).toBe( 'pending' );
-    expect( promise3._value ).toBe( undefined );
+    expect(promise3._state).toBe('pending');
+    expect(promise3._value).toBe(undefined);
 
-    setTimeout(function runsInTheFarFuture () {
-      expect( promise3._state ).toBe( 'fulfilled' );
-      expect( promise3._value ).toBe( 'Wow, the future is so cool.' );
+    setTimeout(function runsInTheFarFuture() {
+      expect(promise3._state).toBe('fulfilled');
+      expect(promise3._value).toBe('Wow, the future is so cool.');
       done();
     }, 100);
   });
-
 });
 
 // A este punto tenemos unos hechos básicos establecidos. Una promesa empieza

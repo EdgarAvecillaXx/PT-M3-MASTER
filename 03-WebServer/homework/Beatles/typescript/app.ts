@@ -1,8 +1,14 @@
 var http = require('http');
-var fs   = require('fs');
+var fs = require('fs');
 const { html, json, text } = require('./headers');
 
-var beatles = [
+type Beatle = {
+  name: string;
+  birthdate: string;
+  profilePic: string;
+};
+
+var beatles: Beatle[] = [
   {
     name: 'John Lennon',
     birthdate: '09/10/1940',
@@ -28,24 +34,24 @@ var beatles = [
 ];
 
 http
-  .createServer((request, response) => {
-    const sendResponse = (code, contentHeader, res) => {
+  .createServer((request, response): void => {
+    const sendResponse = (code: number, contentHeader: {}, res: string) => {
       response.writeHead(code, contentHeader);
       response.end(res);
     };
 
-    const file = name => {
+    const file = (name: string): string => {
       return fs.readFileSync(`${__dirname}/${name}.html`, 'utf-8');
     };
 
-    const name = substring =>
-      beatles.find(beatle => request.url.substring(substring) === encodeURI(beatle.name));
+    const name = (index: number): Beatle =>
+      beatles.find(beatle => request.url.substring(index) === encodeURI(beatle.name))!;
 
     if (request.url === '/') {
       sendResponse(200, html, file('index'));
     } else if (name(1)) {
-      const beatle = name(1);
-      const template = file('beatle')
+      const beatle: Beatle = name(1);
+      const template: string = file('beatle')
         .replace(/{name}/g, beatle.name)
         .replace(/{birth}/g, beatle.birthdate)
         .replace(/{profilePic}/g, beatle.profilePic);
@@ -53,14 +59,14 @@ http
     } else if (request.url === '/api' || request.url === '/api/') {
       sendResponse(200, json, JSON.stringify(beatles));
     } else if (request.url.substring(0, 5) === '/api/' && request.url.length > 5) {
-      const beatle = name(5);
+      const beatle: Beatle = name(5);
       if (beatle) {
         sendResponse(200, json, JSON.stringify(beatle));
       } else {
         sendResponse(404, text, 'Error!!!! Este beatle no existe');
       }
     } else {
-      sendResponse(404, text);
+      sendResponse(404, html, 'Page not found');
     }
   })
   .listen(1337, '127.0.0.1');
